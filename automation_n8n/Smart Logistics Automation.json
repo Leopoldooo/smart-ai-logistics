@@ -1,0 +1,197 @@
+{
+  "name": "Smart Logistics Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "driver-risk",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8bf56f8e-59da-4cd8-a062-811f18479cd8",
+      "name": "Webhook",
+      "webhookId": "68613233-5666-41f0-b9e7-8199a1985b0d"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/log_data",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"speed\": {{$json.body.speed}},\n  \"harsh_braking\": {{$json.body.harsh_braking}},\n  \"fatigue_level\": {{$json.body.fatigue_level}}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "7f850ea1-42d1-4c03-af01-00f0161e3e7e",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "03e45611-4f67-4279-b83c-2b57fdf72821",
+              "leftValue": "={{$json.prediction}}",
+              "rightValue": "Risky Driver",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "63e67495-c7c1-4a27-b2b2-05707dff6892",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ec234c5f-0204-42c3-a9e8-8ef254084873",
+              "name": "status",
+              "value": "High Risk Driver",
+              "type": "string"
+            },
+            {
+              "id": "39215746-a7ca-4331-b6a2-010855b0cfca",
+              "name": "action",
+              "value": "Notify Dispatcher Immediately",
+              "type": "string"
+            },
+            {
+              "id": "4fa77b53-7e38-41d7-baf2-0bfb8a28bd4c",
+              "name": "priority",
+              "value": "High",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        -96
+      ],
+      "id": "5ff2d3ea-2be8-4092-87ca-9d4491d5b93d",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2620ee29-cffa-4769-9a0b-45b14a2772ef",
+              "name": "status",
+              "value": "Driver Safe",
+              "type": "string"
+            },
+            {
+              "id": "400d60c1-8396-4a36-acb9-46f50bdcd484",
+              "name": "action",
+              "value": "Continue Monitoring",
+              "type": "string"
+            },
+            {
+              "id": "24d6e73e-489c-4257-a11e-c701506da112",
+              "name": "priority",
+              "value": "Low",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        96
+      ],
+      "id": "f178d82f-7020-4b45-a9e9-820ded791f80",
+      "name": "Edit Fields1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "0e83b8f4-0837-473f-a4cb-a330d15b3e54",
+  "meta": {
+    "instanceId": "39be6fe407fad7ec415af28e4b265474a816449c193401d4843615b01a761162"
+  },
+  "nodeGroups": [],
+  "id": "6wgVuQdRMuIfkiss",
+  "tags": []
+}
